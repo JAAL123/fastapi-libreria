@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.book_model import Book
+from typing import Optional
 from app.schema import book_schema
 
 
@@ -11,8 +12,14 @@ def create_book(db: Session, book: book_schema.BookCreate):
     return db_book
 
 
-def get_books(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Book).offset(skip).limit(limit).all()
+def get_books(db: Session, skip: int = 0, limit: int = 100, year: Optional[int] = None):
+
+    query = db.query(Book)
+
+    if year:
+        query = query.filter(Book.year == year)
+
+    return query.offset(skip).limit(limit).all()
 
 
 def borrow_book(db: Session, book_id: int, user_id: int):

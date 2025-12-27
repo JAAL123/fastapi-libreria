@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.crud import book_crud
 from app.schema import book_schema
 from app.dependecies import get_db
+from typing import Optional
 
 router = APIRouter(
     prefix="/books",
@@ -16,8 +17,13 @@ def create_book(book: book_schema.BookCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[book_schema.BookResponse])
-def get_books(db: Session = Depends(get_db), skip: int = 0, limit: int = 100):
-    return book_crud.get_books(db=db, skip=skip, limit=limit)
+def get_books(
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100,
+    year: Optional[int] = None,
+):
+    return book_crud.get_books(db=db, skip=skip, limit=limit, year=year)
 
 
 @router.patch("/{book_id}/borrow", response_model=book_schema.BookResponse)
