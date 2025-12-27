@@ -11,7 +11,7 @@ class Book(Base):
     year = Column(Integer)
 
     author_id = Column(Integer, ForeignKey("authors.id"), nullable=False)
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     author = relationship("Author", back_populates="books")
     owner = relationship("User", back_populates="borrowed_books")
