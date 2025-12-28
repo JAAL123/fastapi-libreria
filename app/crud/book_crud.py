@@ -22,6 +22,10 @@ def get_books(db: Session, skip: int = 0, limit: int = 100, year: Optional[int] 
     return query.offset(skip).limit(limit).all()
 
 
+def get_book(db: Session, book_id: int):
+    return db.query(Book).filter(Book.id == book_id).first()
+
+
 def borrow_book(db: Session, book_id: int, user_id: int):
     db_book = db.query(Book).filter(Book.id == book_id).first()
 
@@ -29,7 +33,7 @@ def borrow_book(db: Session, book_id: int, user_id: int):
         return None
 
     db_book.owner_id = user_id
-
+    print(f"db_book: {db_book}")
     db.add(db_book)
     db.commit()
     db.refresh(db_book)
