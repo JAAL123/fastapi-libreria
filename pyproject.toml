@@ -10,4 +10,9 @@ dependencies = [
     "python-multipart>=0.0.21",
     "sqlalchemy>=2.0.45",
     "uvicorn",
+    "passlib[bcrypt]",
+    "python-jose[cryptography]",
+    "pydantic-settings",
+    "python-dotenv",
+    "bcrypt==4.0.1",
 ]
