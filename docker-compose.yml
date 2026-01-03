@@ -7,11 +7,27 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: libreria_user
-      POSTGRES_PASSWORD: libreria_password
-      POSTGRES_DB: libreria_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  api:
+    build: .
+    container_name: fastapi_libreria_api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      - SECRET_KEY= ${SECRET_KEY}
+      - ACCESS_TOKEN_EXPIRE_MINUTES= ${ACCESS_TOKEN_EXPIRE_MINUTES}
 volumes:
   postgres_data:
+
+
