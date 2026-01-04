@@ -14,5 +14,5 @@ dependencies = [
     "python-jose[cryptography]",
     "pydantic-settings",
     "python-dotenv",
-    "bcrypt==4.0.1",
+    "alembic>=1.17.2",
 ]
