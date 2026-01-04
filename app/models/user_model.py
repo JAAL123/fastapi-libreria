@@ -12,4 +12,4 @@ class User(Base):
     hashed_password = Column(String(120), nullable=False)
     is_active = Column(Boolean, default=True)
 
-    borrowed_books = relationship("Book", back_populates="owner")
+    loans = relationship("Loan", back_populates="user")

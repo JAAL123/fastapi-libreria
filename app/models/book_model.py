@@ -9,9 +9,9 @@ class Book(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(100), nullable=False)
     year = Column(Integer)
+    total_copies = Column(Integer, nullable=False, default=1)
+    available_copies = Column(Integer, nullable=False, default=1)
 
+    # relaciones
     author_id = Column(Integer, ForeignKey("authors.id"), nullable=False)
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-
-    author = relationship("Author", back_populates="books")
-    owner = relationship("User", back_populates="borrowed_books")
+    loans = relationship("Loan", back_populates="book")

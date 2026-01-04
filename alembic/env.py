@@ -7,7 +7,7 @@ from alembic import context
 
 # configuracion y modelos
 from app.core.config import settings
-from app.db.base import Base
+from app.core.database import Base
 from app.models import *
 
 
