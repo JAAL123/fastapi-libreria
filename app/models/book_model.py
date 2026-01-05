@@ -15,3 +15,5 @@ class Book(Base):
     # relaciones
     author_id = Column(Integer, ForeignKey("authors.id"), nullable=False)
     loans = relationship("Loan", back_populates="book")
+
+    author = relationship("Author", back_populates="books")

@@ -60,12 +60,10 @@ def borrow_book(
             status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
         )
 
-    if db_book.owner_id:
+    if db_book == "NO_STOCK":
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Book already borrowed"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="No stock available"
         )
-
-    db_book.owner_id = user_id
 
     return book_crud.borrow_book(db=db, book_id=book_id, user_id=user_id)
 
@@ -81,11 +79,9 @@ def return_book(
             status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
         )
 
-    if db_book.owner_id != current_user.id:
+    if db_book == "LOAN_NOT_FOUND":
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Book not borrowed by you"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Loan not found"
         )
 
-    db_book.owner_id = None
-
-    return book_crud.return_book(db=db, book_id=book_id)
+    return book_crud.return_book(db=db, book_id=book_id, user_id=current_user.id)
