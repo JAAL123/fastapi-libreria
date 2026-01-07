@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.crud import book_crud
-from app.schema import book_schema
+from app.schema import book_schema, loan_schema
 from app.dependecies import get_db, get_current_user
 from typing import Optional
 from fastapi import Path
@@ -45,7 +45,7 @@ def create_book(
 
 @router.patch(
     "/{book_id}/borrow",
-    response_model=book_schema.BookResponse,
+    response_model=loan_schema.Loan,
 )
 def borrow_book(
     book_id: int,
@@ -53,35 +53,55 @@ def borrow_book(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    db_book = book_crud.get_book(db=db, book_id=book_id)
+    result = book_crud.borrow_book(db=db, book_id=book_id, user_id=user_id)
 
-    if not db_book:
+    if result == "BOOK_NOT_FOUND":
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
         )
 
-    if db_book == "NO_STOCK":
+    if result == "NO_STOCK":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="No stock available"
         )
 
-    return book_crud.borrow_book(db=db, book_id=book_id, user_id=user_id)
+    return result
 
 
-@router.patch("/{book_id}/return", response_model=book_schema.BookResponse)
+@router.patch("/{book_id}/return", response_model=loan_schema.Loan)
 def return_book(
-    book_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    book_id: int,
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
 ):
-    db_book = book_crud.return_book(db=db, book_id=book_id)
+    result = book_crud.return_book(db=db, book_id=book_id, user_id=user_id)
 
-    if not db_book:
+    if result == "BOOK_NOT_FOUND":
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
         )
 
-    if db_book == "LOAN_NOT_FOUND":
+    if result == "LOAN_NOT_FOUND":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Loan not found"
         )
 
-    return book_crud.return_book(db=db, book_id=book_id, user_id=current_user.id)
+    return result
+
+
+@router.patch("/{book_id}/stock", response_model=book_schema.BookResponse)
+def add_book_stock(
+    book_id: int,
+    quantity: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    add_book_stock = book_crud.add_book_stock(db=db, book_id=book_id, quantity=quantity)
+
+    if not add_book_stock:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+        )
+
+    return add_book_stock

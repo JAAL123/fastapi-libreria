@@ -32,16 +32,16 @@ def borrow_book(db: Session, book_id: int, user_id: int):
     db_book = db.query(Book).filter(Book.id == book_id).first()
 
     if not db_book:
-        return None
+        return "BOOK_NOT_FOUND"
 
     if db_book.available_copies < 1:
         return "NO_STOCK"
 
     db_book.available_copies -= 1
 
-    db_loan = Loan(book_id=book_id, user_id=user_id)
-    db.add(db_book)
+    db_loan = Loan(book_id=book_id, user_id=user_id, loan_date=datetime.utcnow())
     db.add(db_loan)
+    db.add(db_book)
     db.commit()
     db.refresh(db_loan)
     return db_loan
@@ -55,14 +55,20 @@ def return_book(db: Session, book_id: int, user_id: int):
         )
         .first()
     )
+    db_book = db.query(Book).filter(Book.id == book_id).first()
 
+    # verificar si el libro existe
+    if not db_book:
+        return "BOOK_NOT_FOUND"
+
+    # verificar si el prestamo existe
     if not loan:
         return "LOAN_NOT_FOUND"
+
     # actualizar la fecha de devolucion para marcarlo como devuelto
     loan.return_date = datetime.utcnow()
 
     # actualizar el stock del libro
-    db_book = db.query(Book).filter(Book.id == book_id).first()
     db_book.available_copies += 1
 
     db.add(loan)
