@@ -15,7 +15,16 @@ class BookCreate(BookBase):
 class BookResponse(BookBase):
     id: int
     author_id: int
-    owner_id: Optional[int] = None
+    author: Author
+
+    class Config:
+        from_attributes = True
+
+
+class BookInfo(BaseModel):
+    id: int
+    title: str
+    year: int
     author: Author
 
     class Config:
