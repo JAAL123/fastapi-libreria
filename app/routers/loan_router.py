@@ -19,9 +19,10 @@ def get_my_loans(
     current_user=Depends(get_current_user),
     skip: int = 0,
     limit: int = 100,
+    active_only: bool = False,
 ):
     loans = loan_crud.get_loans_by_user(
-        db=db, user_id=current_user.id, skip=skip, limit=limit
+        db=db, user_id=current_user.id, skip=skip, limit=limit, active_only=active_only
     )
     if not loans:
         raise HTTPException(
