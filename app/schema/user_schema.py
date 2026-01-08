@@ -18,7 +18,6 @@ class UserCreate(UserBase):
 class UserResponse(UserBase):
     id: int
     is_active: bool
-    borrowed_books: List[Book] = []
 
     class Config:
         from_attributes = True

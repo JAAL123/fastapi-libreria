@@ -1,5 +1,6 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.models.loan_model import Loan
+from app.models.book_model import Book
 
 
 def get_loans_by_user(
@@ -9,10 +10,20 @@ def get_loans_by_user(
     limit: int = 100,
     active_only: bool = False,
 ):
-    query = db.query(Loan).filter(Loan.user_id == user_id)
+    # Query para obtener los préstamos del usuario
+    query = (
+        db.query(Loan)
+        .options(joinedload(Loan.book).joinedload(Book.author))
+        .filter(Loan.user_id == user_id)
+    )
+
+    # si esta activo solo se traen los que no han sido devueltos
     if active_only:
         query = query.filter(Loan.return_date.is_(None))
+
+    # aplicar paginacion
     loans = query.offset(skip).limit(limit).all()
+
     if not loans:
         return None
     return loans
