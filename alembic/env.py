@@ -8,7 +8,7 @@ from alembic import context
 # configuracion y modelos
 from app.core.config import settings
 from app.core.database import Base
-from app.models import *
+from app.models import author_model, book_model, user_model, loan_model
 
 
 # this is the Alembic Config object, which provides
