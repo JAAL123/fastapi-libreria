@@ -63,6 +63,16 @@ def borrow_book(
             status_code=status.HTTP_400_BAD_REQUEST, detail="No stock available"
         )
 
+    if result == "BOOK_ALREADY_BORROWED":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Book already borrowed"
+        )
+
+    if result == "MAX_LOANS_REACHED":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="User has reached max loans"
+        )
+
     return result
 
 

@@ -4,6 +4,7 @@ from app.models.loan_model import Loan
 from typing import Optional
 from app.schema import book_schema
 from datetime import datetime
+from app.core.config import settings
 
 
 def create_book(db: Session, book: book_schema.BookCreate):
@@ -37,9 +38,29 @@ def borrow_book(db: Session, book_id: int, user_id: int):
     if db_book.available_copies < 1:
         return "NO_STOCK"
 
+    existing_loan = (
+        db.query(Loan)
+        .filter(
+            Loan.user_id == user_id, Loan.book_id == book_id, Loan.return_date.is_(None)
+        )
+        .first()
+    )
+
+    if existing_loan:
+        return "BOOK_ALREADY_BORROWED"
+
+    active_loans_count = (
+        db.query(Loan)
+        .filter(Loan.user_id == user_id, Loan.return_date.is_(None))
+        .count()
+    )
+
+    if active_loans_count >= settings.MAX_LOANS_PER_USER_ALLOWED:
+        return "MAX_LOANS_REACHED"
+
     db_book.available_copies -= 1
 
-    db_loan = Loan(book_id=book_id, user_id=user_id, loan_date=datetime.utcnow())
+    db_loan = Loan(book_id=book_id, user_id=user_id, loan_date=datetime.now())
     db.add(db_loan)
     db.add(db_book)
     db.commit()
@@ -51,7 +72,7 @@ def return_book(db: Session, book_id: int, user_id: int):
     loan = (
         db.query(Loan)
         .filter(
-            Loan.book_id == book_id, Loan.user_id == user_id, Loan.return_date == None
+            Loan.book_id == book_id, Loan.user_id == user_id, Loan.return_date.is_(None)
         )
         .first()
     )
@@ -66,7 +87,7 @@ def return_book(db: Session, book_id: int, user_id: int):
         return "LOAN_NOT_FOUND"
 
     # actualizar la fecha de devolucion para marcarlo como devuelto
-    loan.return_date = datetime.utcnow()
+    loan.return_date = datetime.now()
 
     # actualizar el stock del libro
     db_book.available_copies += 1
