@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.crud import book_crud
 from app.schema import book_schema, loan_schema
-from app.dependecies import get_db, get_current_user
+from app.dependecies import get_db, get_current_user, get_current_admin
 from typing import Optional
 from fastapi import Path
 
@@ -95,7 +95,7 @@ def add_book_stock(
     book_id: int,
     quantity: int,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_admin),
 ):
     add_book_stock = book_crud.add_book_stock(db=db, book_id=book_id, quantity=quantity)
 

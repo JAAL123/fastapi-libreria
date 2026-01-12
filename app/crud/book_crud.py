@@ -79,12 +79,13 @@ def return_book(db: Session, book_id: int, user_id: int):
 
 
 def add_book_stock(db: Session, book_id: int, quantity: int):
-    db_book = db.query(Book).filter(Book.id == book_id).first()
+    db_book = get_book(db, book_id)
 
     if not db_book:
         return None
 
     db_book.available_copies += quantity
+    db_book.total_copies += quantity
     db.add(db_book)
     db.commit()
     db.refresh(db_book)
