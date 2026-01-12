@@ -1,10 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from click import File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 from app.crud import book_crud
+from app.core.config import settings
 from app.schema import book_schema, loan_schema
 from app.dependecies import get_db, get_current_user, get_current_admin
 from typing import Optional
 from fastapi import Path
+import os
+import shutil
+import uuid
 
 router = APIRouter(
     prefix="/books",
@@ -112,3 +117,37 @@ def add_book_stock(
         )
 
     return add_book_stock
+
+
+@router.post("{book_id}/cover", response_model=book_schema.BookInfo)
+def upload_book_cover(
+    book_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_admin),
+):
+    book = book_crud.get_book(db=db, book_id=book_id)
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    if file.content_type not in ["image/jpeg", "image/png"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file type. Only JPEG and PNG files are allowed.",
+        )
+
+    file_extension = file.filename.split(".")[-1]
+    unique_filename = f"{str(uuid.uuid4())}.{file_extension}"
+    file_path = os.path.join(settings.UPLOAD_DIR, unique_filename)
+
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    public_url = f"static/{unique_filename}"
+
+    book.cover_url = public_url
+    db.add(book)
+    db.commit()
+    db.refresh(book)
+
+    return book

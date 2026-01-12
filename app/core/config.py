@@ -22,6 +22,9 @@ class Settings(BaseSettings):
 
     MAX_LOANS_PER_USER_ALLOWED: int = 3
 
+    # Configuracion de subida de archivos
+    UPLOAD_DIR: str = "uploads"
+
     class Config:
         env_file = ".env"
         case_sensitive = True
