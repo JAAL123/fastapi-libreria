@@ -25,7 +25,7 @@ if not os.path.exists(settings.UPLOAD_DIR):
     os.makedirs(settings.UPLOAD_DIR)
 
 
-app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="static")
+app.mount("/static", StaticFiles(directory=settings.UPLOAD_DIR), name="static")
 
 
 app.include_router(author_router.router)
