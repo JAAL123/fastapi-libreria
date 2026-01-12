@@ -38,7 +38,6 @@ def get_book(db: Session = Depends(get_db), book_id: int = Path(..., ge=1)):
 def create_book(
     book: book_schema.BookCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
 ):
     return book_crud.create_book(db=db, book=book)
 
@@ -49,11 +48,10 @@ def create_book(
 )
 def borrow_book(
     book_id: int,
-    user_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    result = book_crud.borrow_book(db=db, book_id=book_id, user_id=user_id)
+    result = book_crud.borrow_book(db=db, book_id=book_id, user_id=current_user.id)
 
     if result == "BOOK_NOT_FOUND":
         raise HTTPException(
@@ -71,11 +69,10 @@ def borrow_book(
 @router.patch("/{book_id}/return", response_model=loan_schema.Loan)
 def return_book(
     book_id: int,
-    user_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    result = book_crud.return_book(db=db, book_id=book_id, user_id=user_id)
+    result = book_crud.return_book(db=db, book_id=book_id, user_id=current_user.id)
 
     if result == "BOOK_NOT_FOUND":
         raise HTTPException(
