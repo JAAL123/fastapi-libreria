@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional
 from app.schema.book_schema import BookResponse as Book, BookInfo
@@ -15,8 +15,7 @@ class Loan(LoanBase):
     loan_date: datetime
     return_date: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class MyLoanResponse(BaseModel):
@@ -25,5 +24,4 @@ class MyLoanResponse(BaseModel):
     return_date: Optional[datetime] = None
     book: BookInfo
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

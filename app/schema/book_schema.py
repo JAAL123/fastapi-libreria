@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from app.schema.author_schema import AuthorResponse as Author
 
@@ -20,8 +20,7 @@ class BookResponse(BookBase):
     available_copies: int
     cover_url: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BookInfo(BaseModel):
@@ -31,5 +30,4 @@ class BookInfo(BaseModel):
     cover_url: Optional[str] = None
     author: Author
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
