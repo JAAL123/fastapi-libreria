@@ -15,4 +15,6 @@ dependencies = [
     "pydantic-settings",
     "python-dotenv",
     "alembic>=1.17.2",
+    "pytest>=9.0.2",
+    "httpx>=0.28.1",
 ]
