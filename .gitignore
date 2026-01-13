@@ -13,3 +13,4 @@ wheels/
 .venv
 alembic/
 uploads/
+/.vscode/
