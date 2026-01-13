@@ -15,6 +15,7 @@ jobs:
       SECRET_KEY: "secret-key-for-testing"
       UPLOAD_DIR: "uploads"
       MAX_ALLOWED_LOANS: 3
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
 
     steps:
       - name: Checkout code
