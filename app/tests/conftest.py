@@ -4,8 +4,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 
+
 from app.main import app
-from app.core.database import Base, get_db
+from app.core.database import Base
+from app.dependecies import get_db
 
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -16,15 +18,13 @@ engine = create_engine(
     poolclass=StaticPool,
 )
 
-testingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 @pytest.fixture(name="session")
 def session_fixture():
-    Base.metadata.create_all(engine)
-
-    db = testingSessionLocal()
-
+    Base.metadata.create_all(bind=engine)
+    db = TestingSessionLocal()
     try:
         yield db
     finally:
@@ -45,4 +45,4 @@ def client_fixture(session):
     with TestClient(app) as client:
         yield client
 
-        yield session
+    app.dependency_overrides.clear()
