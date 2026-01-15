@@ -17,4 +17,5 @@ dependencies = [
     "alembic>=1.17.2",
     "pytest>=9.0.2",
     "httpx>=0.28.1",
+    "fastapi-mail>=1.6.1",
 ]

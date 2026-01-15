@@ -25,6 +25,13 @@ class Settings(BaseSettings):
     # Configuracion de subida de archivos
     UPLOAD_DIR: str = "uploads"
 
+    # Configuracion de servidor de correos Mailtrap
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int = 587
+    MAIL_SERVER: str = "sandbox.smtp.mailtrap.io"
+
     model_config = SettingsConfigDict(
         env_file=".env", case_sensitive=True, extra="ignore"
     )
