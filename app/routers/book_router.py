@@ -1,5 +1,12 @@
 from click import File
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    UploadFile,
+    status,
+    BackgroundTasks,
+)
 from sqlalchemy.orm import Session
 from app.crud import book_crud
 from app.core.config import settings
@@ -10,6 +17,8 @@ from fastapi import Path
 import os
 import shutil
 import uuid
+from app.services import email as email_service
+
 
 router = APIRouter(
     prefix="/books",
@@ -49,14 +58,16 @@ def create_book(
 
 @router.patch(
     "/{book_id}/borrow",
-    response_model=loan_schema.Loan,
+    response_model=loan_schema.MyLoanResponse,
 )
 def borrow_book(
     book_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
+    background_tasks: BackgroundTasks = BackgroundTasks,
 ):
     result = book_crud.borrow_book(db=db, book_id=book_id, user_id=current_user.id)
+    book = book_crud.get_book(db=db, book_id=book_id)
 
     if result == "BOOK_NOT_FOUND":
         raise HTTPException(
@@ -77,6 +88,13 @@ def borrow_book(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="User has reached max loans"
         )
+
+    background_tasks.add_task(
+        email_service.send_loan_confirmation_email,
+        email_to=current_user.email,
+        username=current_user.username,
+        book_title=book.title,
+    )
 
     return result
 
