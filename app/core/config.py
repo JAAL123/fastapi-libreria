@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     MAIL_PORT: int = 587
     MAIL_SERVER: str = "sandbox.smtp.mailtrap.io"
 
+    SUPPRESS_SEND: bool = False
+
     model_config = SettingsConfigDict(
         env_file=".env", case_sensitive=True, extra="ignore"
     )

@@ -14,6 +14,8 @@ conf = ConnectionConfig(
     #
     USE_CREDENTIALS=True,
     VALIDATE_CERTS=True,
+    # Para validar si el email se va a enviar o no
+    SUPPRESS_SEND=settings.SUPPRESS_SEND,
 )
 
 

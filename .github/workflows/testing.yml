@@ -17,6 +17,15 @@ jobs:
       MAX_ALLOWED_LOANS: 3
       ACCESS_TOKEN_EXPIRE_MINUTES: 60
 
+      #Mocks de servidor de correo
+      MAIL_USERNAME: "usuario_falso"
+      MAIL_PASSWORD: "password_falso"
+      MAIL_FROM: "test@test.com"
+      MAIL_PORT: 587
+      MAIL_SERVER: "localhost"
+      MAIL_FROM_NAME: "Test System"
+      SUPPRESS_SEND: 1 
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
