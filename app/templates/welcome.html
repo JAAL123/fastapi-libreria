@@ -1,0 +1,11 @@
+{%extends 'base.html'%}
+{%block content%}
+<h1>¡Hola, {{ username }}</h1>
+<p>Gracias por unirte a nuestara plataforma</p>
+<p>Tu cuenta a sido creada con exito, con el correo <strong>{{ email }}</strong>
+<p>Ahora puedes iniciar sesion en nuestra plataforma</p>
+
+<div style="text-align: center;">
+    <a href="http://localhost:8000/docs" class="btn">Ir a la Biblioteca</a>
+</div>
+{% endblock %}

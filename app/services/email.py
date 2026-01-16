@@ -1,5 +1,12 @@
+from pathlib import Path
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
+from jinja2 import Environment, FileSystemLoader
 from app.core.config import settings
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+TEMPLATE_FOLDER = BASE_DIR / "templates"
+
+template_env = Environment(loader=FileSystemLoader(str(TEMPLATE_FOLDER)))
 
 conf = ConnectionConfig(
     # Conf de credenciales
@@ -20,18 +27,16 @@ conf = ConnectionConfig(
 
 
 async def send_welcome_email(email_to: str, username: str):
-    # Enviar correo de bienvenida
-    html = f""" 
-    <h1>¡Bienvenido a la Biblioteca {username}!</h1>
-    <p> Gracias por registrarte. Puedes empezar a pedir libros </p>
-    """
+
+    template = template_env.get_template("welcome.html")
+    html_content = template.render(username=username, email=email_to)
+
     message = MessageSchema(
-        subject="Bienvenido a la Biblioteca",
+        subject="Bienvenido a FastApi Libreria",
         recipients=[email_to],
-        body=html,
+        template_body=html_content,
         subtype=MessageType.html,
     )
-
     fm = FastMail(conf)
     await fm.send_message(message)
     print(f"Correo enviado a {email_to} ")
