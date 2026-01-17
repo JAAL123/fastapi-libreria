@@ -38,5 +38,9 @@ class Settings(BaseSettings):
         env_file=".env", case_sensitive=True, extra="ignore"
     )
 
+    # configuracion del redis
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+
 
 settings = Settings()

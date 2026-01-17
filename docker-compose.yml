@@ -28,7 +28,17 @@ services:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
       - SECRET_KEY= ${SECRET_KEY}
       - ACCESS_TOKEN_EXPIRE_MINUTES= ${ACCESS_TOKEN_EXPIRE_MINUTES}
+
+  cache:
+    image: redis:alpine
+    container_name: fastapi_libreria_cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 volumes:
   postgres_data:
+  redis_data:
 
 
