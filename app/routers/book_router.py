@@ -1,3 +1,4 @@
+import json
 from click import File
 from fastapi import (
     APIRouter,
@@ -18,6 +19,8 @@ import os
 import shutil
 import uuid
 from app.services import email as email_service
+from app.core.redis_client import get_redis_client, delete_cache_pattern
+import redis.asyncio as redis
 
 
 router = APIRouter(
@@ -27,13 +30,32 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[book_schema.BookResponse])
-def get_books(
+async def get_books(
     db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100,
     year: Optional[int] = None,
+    cache: redis.Redis = Depends(get_redis_client),
 ):
-    return book_crud.get_books(db=db, skip=skip, limit=limit, year=year)
+    cache_key = f"book_list:{skip}:{limit}:{year}"
+
+    cahed_data = await cache.get(cache_key)
+    if cahed_data:
+        print("CACHE HIT: Datos leidos desde redis")
+        return json.loads(cahed_data)
+
+    print("CACHE MISS: Datos leidos desde la base de datos")
+    books = book_crud.get_books(db=db, skip=skip, limit=limit, year=year)
+
+    books_pydantic = [book_schema.BookResponse.model_validate(book) for book in books]
+
+    from fastapi.encoders import jsonable_encoder
+
+    books_json = json.dumps(jsonable_encoder(books_pydantic))
+
+    await cache.set(cache_key, books_json, ex=60)
+
+    return books_pydantic
 
 
 @router.get("/{book_id}", response_model=book_schema.BookResponse)
@@ -49,11 +71,15 @@ def get_book(db: Session = Depends(get_db), book_id: int = Path(..., ge=1)):
 
 
 @router.post("/", response_model=book_schema.BookResponse)
-def create_book(
+async def create_book(
     book: book_schema.BookCreate,
     db: Session = Depends(get_db),
+    cache: redis.Redis = Depends(get_redis_client),
+    current_user=Depends(get_current_admin),
 ):
-    return book_crud.create_book(db=db, book=book)
+    new_book = book_crud.create_book(db=db, book=book)
+    await delete_cache_pattern("book_list:*", cache)
+    return new_book
 
 
 @router.patch(

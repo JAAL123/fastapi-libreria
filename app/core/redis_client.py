@@ -11,3 +11,14 @@ redis_client = redis.Redis(
 
 async def get_redis_client():
     return redis_client
+
+
+async def delete_cache_pattern(pattern: str, cache: redis.Redis):
+    keys_to_delete = []
+
+    async for key in cache.scan_iter(pattern):
+        keys_to_delete.append(key)
+
+    if keys_to_delete:
+        await cache.delete(*keys_to_delete)
+        print(f"Cache limpiada: {len(keys_to_delete)} llaves borradas con el patrón '{pattern}'")
