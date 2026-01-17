@@ -43,17 +43,13 @@ async def send_welcome_email(email_to: str, username: str):
 
 
 async def send_loan_confirmation_email(email_to: str, username: str, book_title: str):
-    # Enviar correo de confirmacion de prestamo
-    html = f"""
-    <h1> Prestamo Confirmado </h1>
-    <p> Hola ${username}, has tomado prestado el libro {book_title} </p>
-    <p> Por favor no olvides retornarlo a tiempo </p>
-    """
+    template = template_env.get_template("loan_confirmation.html")
+    html_content = template.render(username=username, book_title=book_title)
 
     message = MessageSchema(
         subject="Prestamo Confirmado",
         recipients=[email_to],
-        body=html,
+        body=html_content,
         subtype=MessageType.html,
     )
 
