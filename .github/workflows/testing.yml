@@ -12,7 +12,7 @@ jobs:
 
     services:
       redis:
-        image: redis:redis:alphine
+        image: redis:redis:alpine
         ports:
           - "6379:6379"
         options: >-
