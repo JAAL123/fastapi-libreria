@@ -1,19 +1,24 @@
+import pytest
 from app.models import book_model, author_model
 from app.models.user_model import User
 from app.dependecies import get_current_admin
 from app.main import app
 
 
-def test_read_books_empty(client):
-    response = client.get("/books/")
+@pytest.mark.asyncio
+async def test_read_books_empty(async_client):
+    response = await async_client.get("/books/")
     assert response.status_code == 200
     assert response.json() == []
 
 
-def test_create_and_read_book(client, session):
+@pytest.mark.asyncio
+async def test_create_and_read_book(async_client, db_session):
+
     author = author_model.Author(name="Gabriel Garcia Marquez", biografy="Nobel")
-    session.add(author)
-    session.commit()
+    db_session.add(author)
+    await db_session.commit()
+    await db_session.refresh(author)
 
     book = book_model.Book(
         title="Cien años de soledad",
@@ -22,10 +27,10 @@ def test_create_and_read_book(client, session):
         total_copies=10,
         available_copies=10,
     )
-    session.add(book)
-    session.commit()
+    db_session.add(book)
+    await db_session.commit()
 
-    response = client.get("/books/")
+    response = await async_client.get("/books/")
 
     data = response.json()
     assert response.status_code == 200
@@ -37,10 +42,13 @@ def test_create_and_read_book(client, session):
     assert data[0]["available_copies"] == 10
 
 
-def test_create_book_as_admin(client, session):
+@pytest.mark.asyncio
+async def test_create_book_as_admin(async_client, db_session):
+
     author = author_model.Author(name="Antoine de Saint-Exupery", biografy="Aviador")
-    session.add(author)
-    session.commit()
+    db_session.add(author)
+    await db_session.commit()
+    await db_session.refresh(author)
 
     mock_admin = User(id=1, username="admin_test", role="admin")
 
@@ -54,7 +62,7 @@ def test_create_book_as_admin(client, session):
         "available_copies": 5,
     }
 
-    response = client.post("/books/", json=payload)
+    response = await async_client.post("/books/", json=payload)
 
     app.dependency_overrides.clear()
 
