@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from app.main import app
 from app.core.database import Base
 from app.dependecies import get_db
+from app.core.config import settings
 from app.core.redis_client import get_redis_client
 import redis.asyncio as redis
 
@@ -63,7 +64,15 @@ async def async_client(db_session):
         yield db_session
 
     async def override_get_redis():
-        client = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+        client = redis.Redis(
+            host=settings.REDIS_HOST,
+            port=settings.REDIS_PORT,
+            db=0,
+            decode_responses=True,
+        )
+
+        await client.flushdb()
+
         try:
             yield client
         finally:

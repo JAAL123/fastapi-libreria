@@ -13,7 +13,7 @@ async def get_redis_client():
     return redis_client
 
 
-async def delete_cache_pattern(pattern: str, cache: redis.Redis):
+async def delete_cache_pattern(cache: redis.Redis, pattern: str):
     keys_to_delete = []
 
     async for key in cache.scan_iter(pattern):
